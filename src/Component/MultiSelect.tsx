@@ -125,7 +125,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 							flexWrap: "wrap",
 						}}
 					>
-						{selectedItems.map((item) => {
+						{selectedItems.map((item, index) => {
 							return (
 								<div
 									style={{
@@ -153,10 +153,14 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 									<RxCross1
 										size={16}
 										onClick={() => {
-											const index = resultItems.findIndex(
-												(i) => i.id === item.id
-											);
-											handleAddRemove(index);
+											selectedItems.splice(index, 1);
+											setSelectedItems([...selectedItems]);
+											const newList = resultItems.map((i) => {
+												if (i.id === item.id) {
+													return { ...item, checked: false };
+												} else return i;
+											});
+											setResultItems(newList);
 										}}
 										style={{
 											backgroundColor: "rgba(125,125,125,0.8)",
