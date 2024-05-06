@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 interface MultiSelectProps {
 	value: string;
@@ -25,6 +25,8 @@ export interface Item {
 	checked: boolean;
 }
 const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
+	const navigationRef = useRef<HTMLDivElement>(null);
+	const [navigateIndex, setNavigateIndex] = useState<number | null>(null);
 	const [selectedItems, setSelectedItems] = useState<Item[]>(
 		props.selectedItems ?? []
 	);
@@ -34,10 +36,62 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 
 	useEffect(() => {
 		props.onChange(value);
+		setNavigateIndex(null);
 	}, [props, value]);
 	useEffect(() => {
 		setResultItems(props.options);
 	}, [props.options]);
+
+	useEffect(() => {
+		if (navigationRef.current) {
+			navigationRef.current.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			});
+		}
+	}, [navigateIndex]);
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "ArrowUp") {
+				event.preventDefault();
+				setNavigateIndex((prevIndex) =>
+					prevIndex === null ? 0 : Math.max(0, prevIndex - 1)
+				);
+			} else if (event.key === "ArrowDown") {
+				event.preventDefault();
+				setNavigateIndex((prevIndex) =>
+					prevIndex === null
+						? 0
+						: Math.min(resultItems.length - 1, prevIndex + 1)
+				);
+			} else if (event.key === "Enter") {
+				event.preventDefault();
+				if (navigateIndex !== null) handleAddRemove(navigateIndex!);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [resultItems, navigateIndex]);
+
+	const handleAddRemove = (index: number | null) => {
+		if (index !== null) {
+			if (resultItems[index].checked) {
+				const newSelected = selectedItems.filter(
+					(i) => i.id !== resultItems[index].id
+				);
+				setSelectedItems(newSelected);
+			} else {
+				setSelectedItems([...selectedItems, ...[resultItems[index]]]);
+			}
+			resultItems[index].checked = !resultItems[index].checked;
+			setResultItems([...resultItems]);
+		}
+	};
 	return (
 		<div style={{ width: props.width }}>
 			<div
@@ -70,7 +124,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 							flexWrap: "wrap",
 						}}
 					>
-						{selectedItems.map((item, index) => {
+						{selectedItems.map((item) => {
 							return (
 								<div
 									style={{
@@ -98,14 +152,10 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 									<RxCross1
 										size={16}
 										onClick={() => {
-											selectedItems.splice(index, 1);
-											setSelectedItems([...selectedItems]);
-											const newList = resultItems.map((i) => {
-												if (i.id === item.id) {
-													return { ...item, checked: false };
-												} else return i;
-											});
-											setResultItems(newList);
+											const index = resultItems.findIndex(
+												(i) => i.id === item.id
+											);
+											handleAddRemove(index);
 										}}
 										style={{
 											backgroundColor: "rgba(125,125,125,0.8)",
@@ -171,6 +221,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 							const pattern: RegExp = new RegExp(value, "gi");
 							return (
 								<div
+									ref={index === navigateIndex ? navigationRef : null}
 									style={{
 										display: "flex",
 										flexDirection: "row",
@@ -180,22 +231,14 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 										borderBottom: "1px solid gray",
 										paddingRight: 5,
 										paddingLeft: 5,
+										backgroundColor:
+											navigateIndex === index
+												? "rgba(125,125,125,.5)"
+												: undefined,
 									}}
 									key={item.id}
 									onClick={() => {
-										if (item.checked) {
-											const newSelected = selectedItems.filter(
-												(i) => i.id !== item.id
-											);
-											setSelectedItems(newSelected);
-										} else {
-											setSelectedItems([
-												...selectedItems,
-												...[item],
-											]);
-										}
-										resultItems[index].checked = !item.checked;
-										setResultItems([...resultItems]);
+										handleAddRemove(index);
 									}}
 								>
 									<input
