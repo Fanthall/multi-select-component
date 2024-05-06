@@ -22,6 +22,7 @@ export interface Item {
 	id: number;
 	name: string;
 	image: string;
+	info: string;
 	checked: boolean;
 }
 const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
@@ -227,10 +228,9 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 										flexDirection: "row",
 										alignItems: "center",
 										justifyContent: "flex-start",
-										height: 40,
+										height: 45,
 										borderBottom: "1px solid gray",
-										paddingRight: 5,
-										paddingLeft: 5,
+										padding: 5,
 										backgroundColor:
 											navigateIndex === index
 												? "rgba(125,125,125,.5)"
@@ -258,14 +258,19 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = (props) => {
 											}}
 										/>
 									)}
-									<span
-										dangerouslySetInnerHTML={{
-											__html: item.name.replace(
-												pattern,
-												"<span style='font-weight: bold;'>$&</span>"
-											),
-										}}
-									></span>
+									<span>
+										<div
+											dangerouslySetInnerHTML={{
+												__html: item.name.replace(
+													pattern,
+													"<span style='font-weight: bold;'>$&</span>"
+												),
+											}}
+										></div>
+										<div style={{ color: "rgba(125,125,125,.8)" }}>
+											{item.info}
+										</div>
+									</span>
 								</div>
 							);
 						})}

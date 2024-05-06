@@ -18,6 +18,7 @@ function App() {
 								id: item.id,
 								name: item.name,
 								image: item.image,
+								info: item.episode.length.toString() + " Episodes",
 								checked: selectedItems.find((i) => i.id === item.id)
 									? true
 									: false,
