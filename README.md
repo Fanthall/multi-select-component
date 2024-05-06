@@ -11,6 +11,6 @@ Rick and Morty API servisi kullanılmıştır.
 Aranan kelime ile API servisinden çekilen karakterlerin listelenmesi ve birden fazla seçim yapabilmesi sağlamak. 
 
 # Klavye Kısayolları
-ArrowUp listede yukarı gider.
-ArroDown listede aşağıya gider.
-Enter listedeki elemanı seçer ya da seçimi kaldırır.
+* ArrowUp listede yukarı gider.
+* ArroDown listede aşağıya gider.
+* Enter listedeki elemanı seçer ya da seçimi kaldırır.
